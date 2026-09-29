@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+/*
+ * Assume design tokens
+ * --------------------
+ * Raw palette lives on :root so it can be referenced from plain CSS
+ * (e.g. the manifest theme colour or inline SVG). The @theme block maps
+ * those tokens onto Tailwind utilities (bg-*, text-*, shadow-*, rounded-*…).
+ *
+ * One accent (Signal orange) against warm neutral paper + ink.
+ * Accent is a FILL colour — text on accent is always ink. When accent-like
+ * text is needed on paper, use `accent-ink`, which passes WCAG AA.
+ */
+:root {
+  /* Neutrals */
+  --paper: #f5f1e8;
+  --paper-deep: #ebe5d7;
+  --surface: #ffffff;
+  --ink: #121110;
+  --ink-soft: #2a2825;
+  --muted-foreground: #57534b;
+  --line: #121110;
+  --line-soft: #cfc7b5;
+
+  /* Accent — Signal */
+  --accent: #ff5a1f;
+  --accent-hover: #ff6f3b;
+  --accent-soft: #ffd9c7;
+  --accent-ink: #b33a0b;
+
+  /* Status */
+  --success: #1b7f45;
+  --success-soft: #cdefd6;
+  --destructive: #c62a1a;
+  --destructive-soft: #fbd5cf;
+
+  /* Focus ring colour (overridden inside dark/ink sections) */
+  --focus-ring: var(--ink);
+
+  color-scheme: light;
+}
+
+@theme inline {
+  /* Colour */
+  --color-background: var(--paper);
+  --color-background-deep: var(--paper-deep);
+  --color-foreground: var(--ink);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--paper-deep);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--line);
+  --color-border-soft: var(--line-soft);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
+
+  /* Typography */
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --text-display-xl: clamp(3rem, 1.6rem + 6.4vw, 6.75rem);
+  --text-display-xl--line-height: 0.92;
+  --text-display-xl--letter-spacing: -0.045em;
+  --text-display-lg: clamp(2.5rem, 1.6rem + 3.8vw, 4.5rem);
+  --text-display-lg--line-height: 0.95;
+  --text-display-lg--letter-spacing: -0.04em;
+  --text-display-md: clamp(2rem, 1.5rem + 2.2vw, 3.25rem);
+  --text-display-md--line-height: 1;
+  --text-display-md--letter-spacing: -0.035em;
+  --text-display-sm: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+  --text-display-sm--line-height: 1.08;
+  --text-display-sm--letter-spacing: -0.025em;
+
+  /* Hard shadows — always ink, never blurred */
+  --shadow-hard-xs: 2px 2px 0 0 var(--ink);
+  --shadow-hard-sm: 3px 3px 0 0 var(--ink);
+  --shadow-hard-md: 5px 5px 0 0 var(--ink);
+  --shadow-hard-lg: 8px 8px 0 0 var(--ink);
+  --shadow-hard-xl: 12px 12px 0 0 var(--ink);
+  --shadow-hard-accent: 6px 6px 0 0 var(--accent);
+
+  /* Radius — restrained */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  /* Spacing (Tailwind derives p-*, gap-* etc. from --spacing) */
+  --spacing: 0.25rem;
+  --spacing-gutter: 1rem;
+  --spacing-gutter-lg: 2rem;
+  --spacing-section: 6rem;
+  --spacing-section-lg: 10rem;
+
+  /* Motion */
+  --ease-snap: cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  --animate-rise: rise 420ms var(--ease-snap) both;
+  --animate-pop: pop 200ms var(--ease-snap) both;
+  --animate-step-forward: step-forward 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-step-back: step-back 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  @keyframes fill-slot {
+    0%,
+    10% {
+      transform: scaleX(0);
+    }
+    45%,
+    70% {
+      transform: scaleX(1);
+    }
+    100% {
+      transform: scaleX(0);
+      opacity: 0;
+    }
+  }
+
+  @keyframes step-forward {
+    from {
+      opacity: 0;
+      transform: translateX(28px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes step-back {
+    from {
+      opacity: 0;
+      transform: translateX(-28px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+
+  /* Ink-coloured surfaces flip the focus ring to accent so it stays visible */
+  .on-ink {
+    --focus-ring: var(--accent);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  summary {
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@layer utilities {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* A faint drafting grid for hero/feature backdrops */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(18 17 16 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(18 17 16 / 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Diagonal hatch used for "busy" time blocks in routine previews */
+@utility bg-hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgb(18 17 16 / 0.12) 0 2px,
+    transparent 2px 8px
+  );
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
