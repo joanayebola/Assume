@@ -194,6 +194,21 @@ docs/                generation · calendar · billing · privacy
 - **Type** — Bricolage Grotesque display, Geist UI, Geist Mono labels.
 - **Interaction** — buttons lift on hover and sink on press; inputs lift on focus; all motion respects `prefers-reduced-motion`. Mobile sheets are native `<dialog>` bottom sheets (focus trapping, Escape).
 
+## Email templates (Supabase)
+
+Supabase's default email links use PKCE, which only works if the link is opened in the **same browser** that requested it. Links opened on another device, or in an email app's in-app browser, fail. Use token-hash links instead, handled by `/auth/confirm`, which work anywhere.
+
+In **Supabase → Authentication → Emails (Templates)**, change the link in each template:
+
+| Template | Link |
+| --- | --- |
+| Confirm signup | `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/home` |
+| Reset password | `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password` |
+| Magic link (if used) | `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/home` |
+| Change email address | `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email_change&next=/settings` |
+
+`{{ .SiteURL }}` is the Site URL under Authentication → URL Configuration (e.g. `https://assume-day.vercel.app`).
+
 ## Database
 
 Every user-owned table has Row Level Security with owner-only reads; writes that affect money or AI go through narrow `security definer` functions or the service role. Deleting an auth user cascades to all personal data; purchase records are kept unlinked.

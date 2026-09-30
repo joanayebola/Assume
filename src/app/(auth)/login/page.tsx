@@ -10,8 +10,10 @@ import { safeRedirectPath } from "@/lib/utils";
 export const metadata: Metadata = { title: "Log in" };
 
 const linkErrors: Record<string, string> = {
-  link_expired: "That link has expired. Log in, or request a new reset link.",
+  link_expired: "That link has expired. Log in, or use “Forgot password?” if you need help getting in.",
   link_invalid: "That link didn't work — it may have already been used. Try logging in.",
+  link_other_browser:
+    "That link opened in a different browser from the one it was requested in, so it couldn't sign you in. Try logging in, or use “Forgot password?” if you need help getting in.",
   not_configured: "Accounts aren't available yet — Supabase hasn't been configured.",
 };
 

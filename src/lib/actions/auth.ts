@@ -118,31 +118,6 @@ export async function signUp(input: SignUpInput, deviceTimeZone?: string): Promi
   };
 }
 
-export async function requestPasswordReset(
-  input: ForgotPasswordInput,
-): Promise<ActionResult<keyof ForgotPasswordInput>> {
-  if (!isSupabaseConfigured()) return { ok: false, message: SUPABASE_NOT_CONFIGURED };
-
-  const parsed = forgotPasswordSchema.safeParse(input);
-  if (!parsed.success) {
-    return { ok: false, message: "Check the highlighted fields.", fieldErrors: fieldErrorsFrom(parsed.error) };
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: callbackUrl(await origin(), routes.resetPassword),
-  });
-
-  // Rate limits are worth surfacing; anything else stays generic so we
-  // never reveal whether an account exists.
-  if (error?.code?.startsWith("over_")) return { ok: false, message: friendlyAuthError(error) };
-
-  return {
-    ok: true,
-    message: `If an account exists for ${parsed.data.email}, a reset link is on its way.`,
-  };
-}
-
 export async function updatePassword(
   input: UpdatePasswordInput,
 ): Promise<ActionResult<keyof UpdatePasswordInput>> {

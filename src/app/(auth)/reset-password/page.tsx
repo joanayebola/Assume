@@ -19,11 +19,11 @@ export default async function ResetPasswordPage() {
       <>
         <AuthHeading title="This link has expired." />
         <Notice tone="info" className="mb-6">
-          Password reset links work once and expire after a short while. Request a fresh one and open it on
-          this device.
+          Password reset links work once and expire after a short while. Our support team can reset your
+          password for you.
         </Notice>
         <ButtonLink href={routes.forgotPassword} size="lg" block>
-          Send a new reset link
+          Get help resetting it
         </ButtonLink>
       </>
     );

@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 const TOPICS = [
+  { title: "Forgot your password", body: "Email us from the address on your account and we'll reset it." },
   { title: "Billing or refunds", body: "Include the email on your account and roughly when you paid." },
   { title: "Something isn't working", body: "Tell us what you tapped and what happened. A screenshot helps." },
   { title: "Privacy or deleting data", body: "You can delete your account yourself in Settings, any time." },
@@ -30,26 +31,17 @@ export default function ContactPage() {
         <span className="grid size-12 place-items-center rounded-md border-2 border-ink bg-accent">
           <Mail className="size-6" aria-hidden />
         </span>
-        {email ? (
-          <>
-            <p className="mt-5 font-display text-2xl font-bold">Email us</p>
-            <a
-              href={`mailto:${email}?subject=${encodeURIComponent("Assume support")}`}
-              className="mt-2 inline-flex min-h-11 items-center gap-1.5 break-all text-lg font-semibold underline decoration-2 underline-offset-4"
-            >
-              {email} <ArrowUpRight className="size-4 shrink-0" aria-hidden />
-            </a>
-          </>
-        ) : (
-          <>
-            <p className="mt-5 font-display text-2xl font-bold">Support email coming soon</p>
-            <p className="mt-2 text-muted-foreground">Set NEXT_PUBLIC_SUPPORT_EMAIL to show your support address here.</p>
-          </>
-        )}
+        <p className="mt-5 font-display text-2xl font-bold">Email us</p>
+        <a
+          href={`mailto:${email}?subject=${encodeURIComponent("Assume support")}`}
+          className="mt-2 inline-flex min-h-11 items-center gap-1.5 break-all text-lg font-semibold underline decoration-2 underline-offset-4"
+        >
+          {email} <ArrowUpRight className="size-4 shrink-0" aria-hidden />
+        </a>
         <p className="mt-4 text-sm text-muted-foreground">Please don&apos;t include anything personal you&apos;d rather keep private — we don&apos;t need it to help.</p>
       </div>
 
-      <ul className="mt-10 grid gap-4 sm:grid-cols-3">
+      <ul className="mt-10 grid gap-4 sm:grid-cols-2">
         {TOPICS.map((t) => (
           <li key={t.title} className="rounded-lg border-2 border-ink bg-background p-5">
             <LifeBuoy className="size-5" aria-hidden />

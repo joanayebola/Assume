@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPage() {
-  const email = getSupportEmail() ?? "[support email]";
+  const email = getSupportEmail();
   return (
     <LegalPage eyebrow="Legal" title="Privacy." updated="[date]">
       <LegalSection id="summary" title="The short version">

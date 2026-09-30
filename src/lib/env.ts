@@ -129,8 +129,11 @@ export function getSiteUrl(): string {
   return (parsed.success ? parsed.data : "http://localhost:3000").replace(/\/$/, "");
 }
 
-/** Public support address (shown on Contact and error screens). Null until configured. */
-export function getSupportEmail(): string | null {
+/** Used when NEXT_PUBLIC_SUPPORT_EMAIL isn't set. */
+export const DEFAULT_SUPPORT_EMAIL = "info.assume.day@gmail.com";
+
+/** Public support address (shown on Contact, error screens and password help). */
+export function getSupportEmail(): string {
   const email = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim();
-  return email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+  return email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : DEFAULT_SUPPORT_EMAIL;
 }

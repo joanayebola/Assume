@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default function TermsPage() {
-  const email = getSupportEmail() ?? "[support email]";
+  const email = getSupportEmail();
   return (
     <LegalPage eyebrow="Legal" title="Terms." updated="[date]">
       <LegalSection id="about" title="What Assume is">
