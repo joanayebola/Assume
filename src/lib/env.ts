@@ -117,8 +117,14 @@ export function getSupabaseSecretKey(): string | null {
  */
 export function getSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
-  const vercel = process.env.NEXT_PUBLIC_VERCEL_URL ?? process.env.VERCEL_URL;
-  const raw = explicit ?? (vercel ? `https://${vercel}` : "http://localhost:3000");
+  // On Vercel production, use the stable production domain — VERCEL_URL is
+  // unique per deployment and would break OAuth / payment return URLs.
+  const production =
+    (process.env.VERCEL_ENV ?? process.env.NEXT_PUBLIC_VERCEL_ENV) === "production"
+      ? (process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL)
+      : undefined;
+  const vercel = production ?? process.env.NEXT_PUBLIC_VERCEL_URL ?? process.env.VERCEL_URL;
+  const raw = explicit || (vercel ? `https://${vercel}` : "http://localhost:3000");
   const parsed = z.url().safeParse(raw);
   return (parsed.success ? parsed.data : "http://localhost:3000").replace(/\/$/, "");
 }

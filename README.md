@@ -86,7 +86,7 @@ Create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
 
 1. In the Dodo dashboard (start in **Test mode**), create a **one-time product** — e.g. "Personalised routine" — and copy its id → `DODO_PRODUCT_ROUTINE`.
 2. **Developer → API Keys** → `DODO_PAYMENTS_API_KEY`; set `DODO_PAYMENTS_ENVIRONMENT=test_mode` (or `live_mode` with a live key).
-3. **Developer → Webhooks → Add endpoint**: `https://<your-domain>/api/webhooks/dodo`, subscribe to `payment.succeeded`, `payment.failed`, `payment.cancelled`, `refund.succeeded` (and `subscription.*` when you add a subscription). Copy the signing secret → `DODO_PAYMENTS_WEBHOOK_KEY`.
+3. **Developer → Webhooks → Add endpoint**: `https://assume-day.vercel.app/api/webhooks/dodo`, subscribe to `payment.succeeded`, `payment.failed`, `payment.cancelled`, `refund.succeeded` (and `subscription.*` when you add a subscription). Copy the signing secret → `DODO_PAYMENTS_WEBHOOK_KEY`.
 4. Set the **display** price: `BILLING_ROUTINE_PRICE` (minor units, e.g. `1900`) and `BILLING_CURRENCY`. Keep it equal to the Dodo product price; if unset the UI shows "price shown at checkout".
 5. Local webhook testing: expose your dev server (e.g. a tunnel) and register that URL as a test-mode endpoint.
 
@@ -137,11 +137,26 @@ See **`.env.example`** for the complete, commented list.
 
 ## Production deployment
 
-1. Create the Supabase project, apply all migrations, configure Auth URLs (with your production domain).
+Live at **https://assume-day.vercel.app**. The URLs every dashboard needs:
+
+| Where | Value |
+| --- | --- |
+| Vercel env `NEXT_PUBLIC_SITE_URL` | `https://assume-day.vercel.app` |
+| Supabase → Auth → Site URL | `https://assume-day.vercel.app` |
+| Supabase → Auth → Redirect URLs | `https://assume-day.vercel.app/auth/callback`, `http://localhost:3000/auth/callback` |
+| Google OAuth client → Redirect URIs | `https://assume-day.vercel.app/api/calendar/google/callback`, `http://localhost:3000/api/calendar/google/callback` |
+| Google consent screen → Home / Privacy / Terms | `https://assume-day.vercel.app`, `…/privacy`, `…/terms` |
+| Google consent screen → Authorized domain | `assume-day.vercel.app` |
+| Dodo → Webhook endpoint | `https://assume-day.vercel.app/api/webhooks/dodo` |
+
+Without `NEXT_PUBLIC_SITE_URL`, Vercel production falls back to `VERCEL_PROJECT_PRODUCTION_URL` (never the per-deployment `VERCEL_URL`), but setting it explicitly is recommended.
+
+
+1. Create the Supabase project, apply all migrations, configure Auth URLs (table above).
 2. Set every required environment variable on your host (e.g. Vercel → Project → Settings → Environment Variables). Never expose server-only keys as `NEXT_PUBLIC_`.
 3. Deploy (`npm run build` must pass — `npm run check` runs everything).
 4. Dodo: create the live product, live API key, and the **live** webhook endpoint → set `DODO_PAYMENTS_ENVIRONMENT=live_mode`.
-5. Google (if used): add the production redirect URI; complete OAuth verification.
+5. Google (if used): add the production redirect URI; verify ownership of `assume-day.vercel.app` in Search Console (HTML-tag method → `GOOGLE_SITE_VERIFICATION`), then submit OAuth verification.
 6. Allow long-running functions: generation routes set `maxDuration = 300` (needs a plan that supports it, e.g. Vercel Pro/Fluid).
 7. Smoke test: sign up → intake → checkout (test card in test mode first) → routine → calendar → Today → mark manifested → delete a test account.
 
@@ -182,6 +197,8 @@ docs/                generation · calendar · billing · privacy
 ## Database
 
 Every user-owned table has Row Level Security with owner-only reads; writes that affect money or AI go through narrow `security definer` functions or the service role. Deleting an auth user cascades to all personal data; purchase records are kept unlinked.
+
+> **New tables need explicit grants.** Supabase projects no longer auto-grant new tables to the API roles, so every migration that creates a table must `grant` to `authenticated` exactly the operations its RLS policies allow (the service role is covered by default privileges from `20261004000000_api_role_grants.sql`). `tests/migrations.test.ts` fails if a table is left without privileges.
 
 | Table | Purpose |
 | --- | --- |

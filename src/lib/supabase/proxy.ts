@@ -20,6 +20,28 @@ export async function updateSession(request: NextRequest) {
   // Let the marketing site work before Supabase is configured.
   if (!isSupabaseConfigured()) return response;
 
+  // When a redirect URL isn't on Supabase's allow-list, confirmation and
+  // recovery links fall back to the Site URL root with ?code= (or an error).
+  // Route those to the real callback instead of silently ignoring them.
+  // Only "/" is handled: other routes (e.g. calendar OAuth) use ?code= too.
+  if (request.nextUrl.pathname === "/") {
+    const code = request.nextUrl.searchParams.get("code");
+    const errorCode = request.nextUrl.searchParams.get("error_code");
+    if (code || errorCode) {
+      const target = request.nextUrl.clone();
+      target.search = "";
+      if (code) {
+        target.pathname = routes.authCallback;
+        target.searchParams.set("code", code);
+        target.searchParams.set("next", routes.appHome);
+      } else {
+        target.pathname = routes.login;
+        target.searchParams.set("error", errorCode === "otp_expired" ? "link_expired" : "link_invalid");
+      }
+      return NextResponse.redirect(target);
+    }
+  }
+
   const { url, publishableKey } = getSupabaseEnv();
 
   const supabase = createServerClient<Database>(url, publishableKey, {

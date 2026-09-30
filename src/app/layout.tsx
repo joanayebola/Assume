@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   formatDetection: { telephone: false },
+  // Google Search Console "HTML tag" ownership check (needed for OAuth app
+  // verification on a *.vercel.app domain, which can't use DNS records).
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
   keywords: ["manifestation", "manifestation routine", "affirmations", "visualization", "SATS", "scripting", "routine planner"],
   category: "lifestyle",
   openGraph: {

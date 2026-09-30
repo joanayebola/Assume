@@ -48,9 +48,40 @@ export async function signIn(input: SignInInput): Promise<ActionResult<keyof Sig
     password: parsed.data.password,
   });
 
-  if (error) return { ok: false, message: friendlyAuthError(error) };
+  if (error) {
+    return {
+      ok: false,
+      message: friendlyAuthError(error),
+      // Lets the form offer "Resend confirmation email" instead of a dead end.
+      reason: error.code === "email_not_confirmed" ? "email_not_confirmed" : undefined,
+    };
+  }
 
   redirect(safeRedirectPath(parsed.data.next, routes.appHome));
+}
+
+/** Re-send the sign-up confirmation link (for accounts stuck unconfirmed). */
+export async function resendConfirmation(input: ForgotPasswordInput): Promise<ActionResult<keyof ForgotPasswordInput>> {
+  if (!isSupabaseConfigured()) return { ok: false, message: SUPABASE_NOT_CONFIGURED };
+
+  const parsed = forgotPasswordSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, message: "Enter your email address first.", fieldErrors: fieldErrorsFrom(parsed.error) };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: parsed.data.email,
+    options: { emailRedirectTo: callbackUrl(await origin(), routes.appHome) },
+  });
+
+  // Surface rate limits; stay generic otherwise so we never reveal whether an account exists.
+  if (error?.code?.startsWith("over_")) return { ok: false, message: friendlyAuthError(error) };
+  return {
+    ok: true,
+    message: `If ${parsed.data.email} is waiting to be confirmed, a new link is on its way. Open it in this browser.`,
+  };
 }
 
 export async function signUp(input: SignUpInput, deviceTimeZone?: string): Promise<ActionResult<keyof SignUpInput>> {

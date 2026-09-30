@@ -10,7 +10,7 @@ import type { ActionResult } from "@/lib/actions/types";
  * maps field errors back onto inputs and exposes a form-level message.
  */
 export function useActionFeedback<T extends FieldValues>(setError: UseFormSetError<T>) {
-  const [feedback, setFeedback] = useState<{ tone: "error" | "success"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ tone: "error" | "success"; message: string; reason?: string } | null>(null);
 
   async function run(action: () => Promise<ActionResult<Extract<keyof T, string>> | undefined>) {
     setFeedback(null);
@@ -23,7 +23,7 @@ export function useActionFeedback<T extends FieldValues>(setError: UseFormSetErr
         for (const [field, message] of Object.entries(result.fieldErrors ?? {})) {
           if (message) setError(field as Path<T>, { type: "server", message: message as string });
         }
-        setFeedback({ tone: "error", message: result.message });
+        setFeedback({ tone: "error", message: result.message, reason: result.reason });
       }
       return result;
     } catch (error) {

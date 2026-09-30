@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { TextField } from "@/components/ui/field";
 import { Notice } from "@/components/ui/notice";
 import { PasswordField } from "@/components/ui/password-field";
 import { useActionFeedback } from "@/hooks/use-action-feedback";
-import { signIn } from "@/lib/actions/auth";
+import { resendConfirmation, signIn } from "@/lib/actions/auth";
 import { routes } from "@/lib/site";
 import { signInSchema, type SignInInput } from "@/lib/validation/auth";
 
@@ -19,6 +20,7 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
     register,
     handleSubmit,
     setError,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<SignInInput>({
     resolver: zodResolver(signInSchema),
@@ -26,10 +28,41 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
   });
   const { feedback, run } = useActionFeedback(setError);
   const message = feedback?.message ?? initialError;
+  const [resend, setResend] = useState<{ state: "idle" | "sending" | "done"; message?: string; tone?: "success" | "error" }>({
+    state: "idle",
+  });
+
+  const onResend = async () => {
+    setResend({ state: "sending" });
+    try {
+      const result = await resendConfirmation({ email: getValues("email") });
+      setResend({ state: "done", message: result.message ?? "Sent.", tone: result.ok ? "success" : "error" });
+    } catch {
+      setResend({ state: "done", message: "We couldn't reach the server. Try again.", tone: "error" });
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit((values) => run(() => signIn({ ...values, next })))} noValidate className="space-y-5">
-      {message && <Notice tone="error">{message}</Notice>}
+      {message && (
+        <Notice tone="error">
+          {message}
+          {feedback?.reason === "email_not_confirmed" && resend.state !== "done" && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="mt-3"
+              loading={resend.state === "sending"}
+              loadingText="Sending…"
+              onClick={onResend}
+            >
+              Resend confirmation email
+            </Button>
+          )}
+        </Notice>
+      )}
+      {resend.state === "done" && resend.message && <Notice tone={resend.tone}>{resend.message}</Notice>}
 
       <TextField
         label="Email"

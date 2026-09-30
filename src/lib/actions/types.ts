@@ -6,7 +6,13 @@ import type { z } from "zod";
  */
 export type ActionResult<Fields extends string = string> =
   | { ok: true; message?: string }
-  | { ok: false; message: string; fieldErrors?: Partial<Record<Fields, string>> };
+  | {
+      ok: false;
+      message: string;
+      fieldErrors?: Partial<Record<Fields, string>>;
+      /** Machine-readable reason when the UI can offer a specific next step. */
+      reason?: string;
+    };
 
 export function fieldErrorsFrom<T extends z.ZodType>(error: z.ZodError<z.infer<T>>) {
   const out: Record<string, string> = {};
